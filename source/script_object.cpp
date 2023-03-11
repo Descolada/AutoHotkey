@@ -819,7 +819,9 @@ ObjectMember Map::sMembers[] =
 	Object_Method1(Delete, 1, 1),
 	Object_Member(Get, __Item, 0, IT_CALL, 1, 2),
 	Object_Method1(Has, 1, 1),
-	Object_Method1(Set, 0, MAXP_VARIADIC)  // Allow 0 for flexibility with variadic calls.
+	Object_Method1(Set, 0, MAXP_VARIADIC),  // Allow 0 for flexibility with variadic calls.
+	Object_Method1(Keys, 0, 0),
+	Object_Method1(Values, 0, 0)
 };
 
 
@@ -1396,6 +1398,18 @@ void Map::Clone(ResultToken &aResultToken, int aID, int aFlags, ExprTokenType *a
 	if (!CloneTo(*clone))
 		_o_throw_oom;
 	_o_return(clone);
+}
+
+void Map::Keys(ResultToken& aResultToken, int aID, int aFlags, ExprTokenType* aParam[], int aParamCount)
+{
+	_o_return(new IndexEnumerator(this, ParamIndexToOptionalInt(0, 0)
+		, static_cast<IndexEnumerator::Callback>(&Map::GetEnumKey)));
+}
+
+void Map::Values(ResultToken& aResultToken, int aID, int aFlags, ExprTokenType* aParam[], int aParamCount)
+{
+	_o_return(new IndexEnumerator(this, ParamIndexToOptionalInt(0, 0)
+		, static_cast<IndexEnumerator::Callback>(&Map::GetEnumValue)));
 }
 
 bool Object::DefineMethod(name_t aName, IObject *aFunc)
@@ -2232,27 +2246,45 @@ ResultType Object::GetEnumProp(UINT &aIndex, Var *aName, Var *aVal, int aVarCoun
 
 ResultType Map::GetEnumItem(UINT &aIndex, Var *aKey, Var *aVal, int aVarCount)
 {
-	if (aIndex < mCount)
-	{
-		auto &item = mItem[aIndex];
-		if (aKey)
-		{
-			if (aIndex < mKeyOffsetObject) // mKeyOffsetInt < mKeyOffsetObject
-				aKey->Assign(item.key.i);
-			else if (aIndex < mKeyOffsetString) // mKeyOffsetObject < mKeyOffsetString
-				aKey->Assign(item.key.p);
-			else // mKeyOffsetString < mCount
-				aKey->Assign(item.key.s);
-		}
-		if (aVal)
-		{
-			ExprTokenType value;
-			item.ToToken(value);
-			aVal->Assign(value);
-		}
-		return CONDITION_TRUE;
-	}
-	return CONDITION_FALSE;
+	ExprTokenType key, value;
+	Pair& item = mItem[aIndex];
+	if (aIndex >= mCount)
+		return CONDITION_FALSE;
+	item.ToToken(value);
+	KeyToToken(aIndex, item, key);
+	aKey->Assign(key);
+	aVal->Assign(value);
+	return CONDITION_TRUE;
+}
+
+ResultType Map::GetEnumKey(UINT& aIndex, Var* aKey, Var* aCount, int aVarCount)
+{
+	ExprTokenType key;
+	Pair& item = mItem[aIndex];
+	if (aIndex >= mCount)
+		return CONDITION_FALSE;
+	KeyToToken(aIndex, item, key);
+	if (aVarCount > 1) {
+		aKey->Assign((__int64)aIndex + 1);
+		aCount->Assign(key);
+	} else
+		aKey->Assign(key);
+	return CONDITION_TRUE;
+}
+
+ResultType Map::GetEnumValue(UINT& aIndex, Var* aKey, Var* aCount, int aVarCount)
+{
+	ExprTokenType value;
+	Pair& item = mItem[aIndex];
+	if (aIndex >= mCount)
+		return CONDITION_FALSE;
+	item.ToToken(value);
+	if (aVarCount > 1) {
+		aKey->Assign((__int64)aIndex + 1);
+		aCount->Assign(value);
+	} else
+		aKey->Assign(value);
+	return CONDITION_TRUE;
 }
 
 
@@ -2286,6 +2318,16 @@ ResultType RegExMatchObject::GetEnumItem(UINT &aIndex, Var *aKey, Var *aVal, int
 //
 // Object:: and Map:: Internal Methods
 //
+
+bool Map::KeyToToken(index_t index, Pair &item, ExprTokenType &key_token) {
+	if (index < mKeyOffsetObject) // mKeyOffsetInt < mKeyOffsetObject
+		key_token.SetValue(item.key.i);
+	else if (index < mKeyOffsetString) // mKeyOffsetObject < mKeyOffsetString
+		key_token.SetValue(item.key.p);
+	else // mKeyOffsetString < mCount
+		key_token.SetValue(item.key.s);
+	return true;
+}
 
 Map::Pair *Map::FindItem(IntKeyType val, index_t left, index_t right, index_t &insert_pos)
 // left and right must be set by caller to the appropriate bounds within mItem.

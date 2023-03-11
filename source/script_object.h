@@ -657,6 +657,7 @@ class Map : public Object
 	Pair *FindItem(ExprTokenType &key_token, LPTSTR aBuf, SymbolType &key_type, Key &key, index_t &insert_pos);
 
 	void ConvertKey(ExprTokenType &key_token, LPTSTR buf, SymbolType &key_type, Key &key);
+	bool KeyToToken(index_t index, Pair &item, ExprTokenType &key_token);
 
 	Pair *Insert(SymbolType key_type, Key key, index_t at);
 
@@ -671,6 +672,8 @@ class Map : public Object
 	Map *CloneTo(Map &aTo);
 
 	ResultType GetEnumItem(UINT &aIndex, Var *, Var *, int);
+	ResultType GetEnumKey(UINT& aIndex, Var*, Var*, int);
+	ResultType GetEnumValue(UINT& aIndex, Var*, Var*, int);
 
 public:
 	static Map *Create(ExprTokenType *aParam[] = NULL, int aParamCount = 0);
@@ -741,6 +744,8 @@ public:
 	void __Enum(ResultToken &aResultToken, int aID, int aFlags, ExprTokenType *aParam[], int aParamCount);
 	void Has(ResultToken &aResultToken, int aID, int aFlags, ExprTokenType *aParam[], int aParamCount);
 	void Clone(ResultToken &aResultToken, int aID, int aFlags, ExprTokenType *aParam[], int aParamCount);
+	void Keys(ResultToken& aResultToken, int aID, int aFlags, ExprTokenType* aParam[], int aParamCount);
+	void Values(ResultToken& aResultToken, int aID, int aFlags, ExprTokenType* aParam[], int aParamCount);
 
 	static ObjectMember sMembers[];
 	static Object *sPrototype;

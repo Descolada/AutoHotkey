@@ -1883,12 +1883,9 @@ public:
 class RangeEnumerator : public EnumBase
 {
 public:
-	typedef ResultType(Object::* Callback)(UINT& aIndex, Var* aOutputVar1, Var* aOutputVar2, int aVarCount);
+	typedef ResultType(Object::* Callback)(INT64& aIndex, Var* aOutputVar1, Var* aOutputVar2, int aVarCount);
 private:
-	INT64 mStart;
-	INT64 mStop;
-	INT64 mStep;
-	UINT mIndex = 0;
+	INT64 mStart, mStop, mStep, mIndex = 0;
 	Callback mGetValue;
 public:
 	RangeEnumerator(INT64 aStart, INT64 aStop, INT64 aStep, INT64 aVarCount, Callback aGetValue) : mGetValue(aGetValue)
@@ -1899,7 +1896,7 @@ public:
 		mParamCount = aVarCount;
 		SetBase(EnumBase::sPrototype);
 	}
-	ResultType RangeCallback(UINT& aIndex, Var*, Var*, int);
+	ResultType RangeCallback(INT64& aIndex, Var*, Var*, int);
 	ResultType Next(Var*, Var*) override;
 };
 

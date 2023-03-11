@@ -65,12 +65,12 @@ BIF_DECL(BIF_Range)
 		, static_cast<RangeEnumerator::Callback>(&RangeEnumerator::RangeCallback)));
 }
 
-ResultType RangeEnumerator::RangeCallback(UINT& aIndex, Var* aVal, Var* aReserved, int aVarCount) {
+ResultType RangeEnumerator::RangeCallback(INT64& aIndex, Var* aVal, Var* aReserved, int aVarCount) {
 	if (mStep > 0 ? mStart < mStop : mStop < mStart) 
 	{
 		if (aReserved) 
 		{
-			aVal->Assign((__int64)aIndex);
+			aVal->Assign(aIndex);
 			aReserved->Assign(mStart);
 		}
 		else

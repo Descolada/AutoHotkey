@@ -47,10 +47,10 @@ class script_object_bif {
 				break
 		}
 		DUnit.Equal(res, "2 0 -2 -4 -6 ")
-
 		res := ""
 		for i in Range(2147483647, 2147483653) ; INT_MAX test
 			res .= i " "
-		DUnit.Equal(res, "2147483647 2147483648 2147483649 2147483650 2147483651 2147483652 ")	
+		DUnit.Equal(res, "2147483647 2147483648 2147483649 2147483650 2147483651 2147483652 ")
+		DUnit.Equal(Array(Range(5)*), [1, 2, 3, 4]) ; Range to Array
 	}
 }

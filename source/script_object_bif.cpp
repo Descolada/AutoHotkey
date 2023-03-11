@@ -46,9 +46,10 @@ BIF_DECL(Op_Array)
 BIF_DECL(BIF_Range)
 {
 	INT64 start, stop, step;
-	if (aParamCount <= 1) { // With Range(n) consider n to be the stop
+	if (aParamCount <= 1) // With Range(n) consider n to be the stop
 		start = 1, stop = ParamIndexToOptionalInt64(0, 1), step = 1;
-	} else {
+	else 
+	{
 		step = ParamIndexToOptionalInt64(2, 1);
 		if (step == 0)
 			_f_throw_value(ERR_PARAM3_INVALID);
@@ -65,8 +66,10 @@ BIF_DECL(BIF_Range)
 }
 
 ResultType RangeEnumerator::RangeCallback(UINT& aIndex, Var* aVal, Var* aReserved, int aVarCount) {
-	if (mStep > 0 ? mStart < mStop : mStop < mStart) {
-		if (aReserved) {
+	if (mStep > 0 ? mStart < mStop : mStop < mStart) 
+	{
+		if (aReserved) 
+		{
 			aVal->Assign((__int64)aIndex);
 			aReserved->Assign(mStart);
 		}

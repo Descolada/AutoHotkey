@@ -7,11 +7,6 @@
 #include "script_func_impl.h"
 
 
-#include "application.h"
-#include "input_object.h"
-#include <errno.h> // For ERANGE.
-#include <initializer_list>
-
 
 extern BuiltInFunc *OpFunc_GetProp, *OpFunc_GetItem, *OpFunc_SetProp, *OpFunc_SetItem;
 

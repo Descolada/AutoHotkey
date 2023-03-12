@@ -66,7 +66,7 @@ BIF_DECL(BIF_Range)
 }
 
 ResultType RangeEnumerator::RangeCallback(INT64& aIndex, Var* aVal, Var* aReserved, int aVarCount) {
-	if (mStep > 0 ? mStart < mStop : mStop < mStart) 
+	if (mStep > 0 ? mStart <= mStop : mStop <= mStart) 
 	{
 		if (aReserved) 
 		{

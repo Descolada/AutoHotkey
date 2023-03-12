@@ -64,5 +64,41 @@ class script_object_bif {
 		}
 		DUnit.Equal(res, "1 1 2 3 2 1 2 3 3 1 2 3 ")
 		DUnit.Equal(Array(Range(4)*), [1, 2, 3, 4]) ; Range to Array
+		
+		buf:= 0, res := "", loopCount := 1000
+		start := QPC()
+		for i in Range(loopCount)
+			for j in Range(loopCount)
+				buf := j
+		res .= "Range: " Round(QPC()-start) "`n"
+		start := QPC()
+		Loop loopCount {
+			Loop loopCount
+				buf := A_Index
+		}
+		res .= "Loop: " Round(QPC()-start) "`n"
+		start := QPC()
+		for i in Range(2,loopCount)
+			for j in Range(2,loopCount)
+				buf := j
+		res .= "Range offset: " Round(QPC()-start) "`n"
+		start := QPC()
+		Loop loopCount-1
+			Loop loopCount-1
+				buf := A_Index+1
+		res .= "Loop offset: " Round(QPC()-start) "`n"
+		start := QPC()
+		for i in _Range(1, loopCount)
+			for j in _Range(1, loopCount)
+				buf := j
+		res .= "Custom range: " Round(QPC()-start) "`n"
+		OutputDebug(res)
 	}
 }
+
+QPC() {
+	static c := 0, f := (DllCall("QueryPerformanceFrequency", "int64*", &c), c /= 1000)
+	return (DllCall("QueryPerformanceCounter", "int64*", &c), c / f)
+}
+
+_Range(Start, Stop, Step:=1) => (&n) => (n := Start, Start += Step, Step > 0 ? n <= Stop : n >= Stop)

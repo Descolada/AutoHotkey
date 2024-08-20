@@ -268,6 +268,7 @@ VarEntry g_BIV_A[] =
 	A_(Temp), // Debatably should be A_TempDir, but brevity seemed more popular with users, perhaps for heavy uses of the temp folder.,
 	A_(ThisFunc),
 	A_(ThisHotkey),
+	A_(ThreadId),
 	A_(TickCount),
 	A_x(TimeIdle, BIV_TimeIdle),
 	A_x(TimeIdleKeyboard, BIV_TimeIdle),
@@ -1184,8 +1185,25 @@ ResultType Script::Reload(bool aDisplayErrors)
 
 
 
-bif_impl ResultType Exit(optl<int> aExitCode)
-{
+bif_impl FResult Exit(optl<int> aExitCode, optl<UINT> aThreadId, ResultToken& aResultToken)
+{	
+	if (aThreadId.has_value() && *aThreadId != g->ThreadId) {
+		int i = *aThreadId & 0xFFFF;
+
+		if (i > g_nThreads)
+			return FR_E_ARG(1);
+
+		UINT id = g_array[i - 1].ThreadId;
+		if (((*aThreadId >> 16) == 0 && id) || id == *aThreadId) {
+			aResultToken.SetValue(id);
+			g_array[i - 1].ThreadId = 0;
+			if (i <= 2)
+				g_script.mPendingExitCode = aExitCode.has_value() ? *aExitCode : 0;
+		} else
+			aResultToken.SetValue(0);
+
+		return OK;
+	}
 	// Even if the script isn't persistent, this thread might've interrupted another which should
 	// be allowed to complete normally.  This is especially important in v2 because a persistent
 	// script can become non-persistent by disabling a timer, closing a GUI, etc.  So if there
@@ -1201,7 +1219,10 @@ bif_impl ResultType Exit(optl<int> aExitCode)
 	// reset to 0 in ResumeUnderlyingThread().
 	if (g_nThreads <= 1)
 		g_script.mPendingExitCode = aExitCode.has_value() ? *aExitCode : 0;
-	return EARLY_EXIT;
+
+	aResultToken.SetValue(g->ThreadId);
+	aResultToken.SetExitResult(EARLY_EXIT);
+	return OK;
 }
 
 bif_impl ResultType ExitApp(optl<int> aExitCode)
@@ -9902,6 +9923,9 @@ ResultType Line::ExecUntil(ExecUntilMode aMode, ResultToken *aResultToken, Line 
 		//    similar to the below is also done for single commmands that take a long time, such
 		//    as Download, FileSetAttrib, etc.
 		LONG_OPERATION_UPDATE
+
+		if (!g.ThreadId)
+			return EARLY_EXIT;
 
 		// If interruptions are currently forbidden, it's our responsibility to check if the number
 		// of lines that have been run since this quasi-thread started now indicate that

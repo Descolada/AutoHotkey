@@ -910,6 +910,7 @@ struct ScriptThreadState
 	int UninterruptedLineCount; // Stored as a g-struct attribute in case OnExit func interrupts it while uninterruptible.
 	int UninterruptibleDuration; // Must be int to preserve negative values found in g_script.mUninterruptibleTime.
 	DWORD ThreadStartTime;
+	UINT ThreadId;
 
 	bool IsPaused;
 	bool MsgBoxTimedOut; // Meaningful only while a MsgBox call is in progress.
@@ -1036,6 +1037,7 @@ inline void global_init(global_struct &g)
 {
 	global_clear_state(g);
 	global_set_defaults(g);
+	g.ThreadId = 1;
 }
 
 

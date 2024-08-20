@@ -2244,6 +2244,8 @@ public:
 	ScriptTimer *mFirstTimer, *mLastTimer;  // The first and last script timers in the linked list.
 	UINT mTimerCount, mTimerEnabledCount;
 
+	unsigned short mTotalThreadCount = 1;  // Counts the number of threads created in total during the execution of the script
+
 	UserMenu *mFirstMenu, *mLastMenu;
 	UINT mMenuCount;
 
@@ -2556,6 +2558,7 @@ BIV_DECL_R (BIV_TimeSinceThisHotkey);
 BIV_DECL_R (BIV_TimeSincePriorHotkey);
 BIV_DECL_R (BIV_EndChar);
 BIV_DECL_R (BIV_HotIf);
+BIV_DECL_R(BIV_ThreadId);
 BIV_DECL_RW(BIV_EventInfo);
 BIV_DECL_R (BIV_TimeIdle);
 BIV_DECL_R (BIV_IPAddress);

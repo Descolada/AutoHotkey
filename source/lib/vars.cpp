@@ -553,6 +553,10 @@ BIV_DECL_R(BIV_IsSuspended)
 	_f_return_b(g_IsSuspended);
 }
 
+BIV_DECL_R(BIV_ThreadId)
+{
+	_f_return_i(g->ThreadId);
+}
 
 
 BIV_DECL_R(BIV_IsCompiled)
